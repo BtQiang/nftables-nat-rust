@@ -1,5 +1,3 @@
------------------------------------------------------------------
-
 ## 基于nftables的端口转发管理工具
 
 用途：便捷地设置nat流量转发
@@ -53,11 +51,10 @@ yum install -y  nftables
 ```shell
 # 必须是root用户
 # sudo su
-
-systemctl stop nat
 # 下载可执行文件
-wget -O /usr/local/bin/nat http://cdn.arloor.com/tool/dnat
-chmod +x /usr/local/bin/nat
+#curl -sSLf http://cdn.arloor.com/tool/dnat -o /tmp/nat
+curl -sSLf https://us.arloor.dev/https://github.com/arloor/nftables-nat-rust/releases/download/v1.0.0/dnat -o /tmp/nat
+install /tmp/nat /usr/local/bin/nat
 
 # 创建systemd服务
 cat > /lib/systemd/system/nat.service <<EOF
@@ -92,12 +89,12 @@ SINGLE,49999,59999,baidu.com
 RANGE,50000,50010,baidu.com
 EOF
 
-systemctl start nat
+systemctl restart nat
 ```
 
 **配置文件说明**
 
-`/etc/nat.conf`如下：
+`/etc/nat.conf` 如下：
 
 ```$xslt
 SINGLE,49999,59999,baidu.com
@@ -108,6 +105,7 @@ RANGE,50000,50010,baidu.com
 - SINGLE：单端口转发：本机49999端口转发到baidu.com:59999
 - RANGE：范围端口转发：本机50000-50010转发到baidu.com:50000-50010
 - 请确保配置文件符合格式要求，否则程序可能会出现不可预期的错误，包括但不限于你和你的服务器炸掉（认真
+- 以 `#` 开始的行会被当成注释
 
 高级用法：
 
@@ -119,7 +117,7 @@ RANGE,50000,50010,baidu.com
 ## 一些需要注意的东西
 
 1. 本工具在centos8、redhat8、fedora31上有效，其他发行版未作测试
-2. 与前作[arloor/iptablesUtils](https://github.com/arloor/iptablesUtils)不兼容，在两个工具之间切换时，请重装系统以确保系统纯净！
+2. 与前作[arloor/iptablesUtils](https://github.com/arloor/iptablesUtils)不兼容，在两个工具之间切换时，请先卸载原来的工具或重装系统
 
 ## 如何停止以及卸载
 
@@ -132,6 +130,10 @@ nft delete table ip nat
 ## 禁止开机启动
 systemctl disable nat
 ```
+
+## webui
+
+感谢 @C018 贡献的[webui](webui/README.md)
 
 ## 致谢
 
@@ -165,19 +167,12 @@ nft list ruleset
 执行
 
 ```shell
-cat /opt/nat/log/nat.log
+cat /opt/nat/nat.log
 ```
 
 或执行
 
 ```shell
-journalctl -exu nat
+journalctl -exfu nat
 ```
 
-## 联系
-
-[Telegram](https://t.me/popstary)
-
-## 赏个鸡腿吧
-
-<img src="/wechat_shoukuan.jpg" alt="" width="400px" style="max-width: 100%;">
